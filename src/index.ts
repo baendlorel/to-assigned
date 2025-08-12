@@ -9,22 +9,28 @@ import {
   defineProperty,
 } from './native.js';
 
-function createResult(o: any) {
-  const proto = notPrimitive(o) ? getPrototypeOf(o) : null;
+type Class = new (...args: any[]) => any;
+
+function createResult(sources: any[]) {
+  const o = sources.find(notPrimitive);
+  if (!o) {
+    return {};
+  }
+
+  const proto = getPrototypeOf(o);
+
   let result: any;
   if (isArray(o)) {
     result = [];
   } else if (typeof o === 'function') {
     let fn: (...args: unknown[]) => unknown;
-    if (isArrowFunction(o)) {
+    if (isArrowFunction(o as Class)) {
       fn = (...args: any[]) => o(...args);
     } else {
       fn = function (...args: any[]) {
         return o(...args);
       };
-      fn.bind = function (...args: any[]) {
-        return o.bind(...args);
-      };
+      fn.bind = (thisArg: any, ...args: any[]) => o.bind(thisArg, ...args);
     }
     // mimic name and length
     defineProperty(fn, 'name', { value: o.name, configurable: true });
@@ -49,27 +55,28 @@ function createResult(o: any) {
 }
 
 /**
- * Creates a new object with properties from the provided sources
- * - Basically the same as Object.assign({}, ...sources.filter(isObjectOrFunction))
- * - returned prototype will be **the same as the first source**
- * - if the first source is:
- *   - *non-object*: `result.prototype` will be `null`
- *   - *array*: result will be an array and shares the same prototype
- *   - *function*: result will be a function with the same `name`, `length` and shares the same prototype. But `caller`, `callee`, and `arguments` will not be copied
- *   - *Map/Set/WeakMap/WeakSet/Date*: create a new one with the old
- *   - *other objects*: starts from an empty object
- * - only enumerable properties are copied
- * - will not modify the sources
- * - ignores all non-object arguments
- * @returns a new object with properties from the sources
+ * Creates a new object, array, function, or special object with properties from the provided sources.
+ * Prototype and type are determined by the first non-primitive source (see below):
+ *
+ * - The sources are never modified.
+ * - Non-object arguments are ignored.
+ * - If all sources are primitive, returns `{}`.
+ * - If the first non-primitive source is:
+ *   - **Array**: result is an array, prototype same as source.
+ *   - **Function**: result is a function with same `name`, `length`, and prototype. (`caller`, `callee`, `arguments` not copied)
+ *   - **Map/Set/WeakMap/WeakSet/Date**: result is a new instance of the same type, initialized from the first source (only own enumerable properties are merged, not collection contents).
+ *   - **Other object**: result is a plain object with the same prototype as the source.
+ *
+ * - Only enumerable properties (including symbol keys) are copied from all sources.
+ *
+ * @returns A new object, array, function, or special object with merged properties and inherited prototype/type.
  */
 export function toAssigned(...sources: any[]): any {
   if (sources.length === 0) {
     return {};
   }
 
-  const o = createResult(sources[0]);
-
+  const o = createResult(sources);
   for (let i = 0; i < sources.length; i++) {
     const s = sources[i];
     if (s && typeof s === 'object') {

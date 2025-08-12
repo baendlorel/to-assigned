@@ -1,19 +1,19 @@
 # to-assigned
 
-Create a new object, array, or function by copying enumerable properties from one or more source objects, with prototype and type inheritance from the first source. More flexible than `Object.assign`, supporting arrays, functions, and special objects as the first source.
+Create a new object, array, function, or special object by copying enumerable properties from one or more source objects. The prototype and type of the result are determined by the first non-primitive source (see below). More flexible than `Object.assign`, supporting arrays, functions, and special objects as the first source.
 
 ## Features
 
-- The returned value's prototype will be the same as the first source (if it's an object), or `null` if the first source is a primitive.
-- If the first source is:
-  - **Array**: result is an array, sharing the same prototype.
-  - **Function**: result is a function with the same `name`, `length`, and prototype. (But `caller`, `callee`, and `arguments` are not copied.)
-  - **Map/Set/WeakMap/WeakSet/Date**: result is a new instance of the same type, initialized from the first source. (But only own enumerable properties are merged, not collection contents.)
-  - **Other objects**: result is a plain object with the same prototype.
-  - **Non-object**: result is a plain object with `null` prototype.
-- Only enumerable properties are copied (including symbol keys).
 - Does not modify the sources.
 - Ignores all non-object arguments.
+- The result's prototype and type are determined by the first non-primitive source:
+  - If all sources are primitive, returns a plain object with null prototype.
+  - If the first non-primitive source is:
+    - **Array**: result is an array, prototype same as source.
+    - **Function**: result is a function with same `name`, `length`, and prototype. (`caller`, `callee`, `arguments` not copied)
+    - **Map/Set/WeakMap/WeakSet/Date**: result is a new instance of the same type, initialized from the first source (only own enumerable properties are merged, not collection contents).
+    - **Other object**: result is a plain object with the same prototype as the source.
+- Only enumerable properties are copied (including symbol keys) from all sources.
 
 ## Installation
 
@@ -65,7 +65,7 @@ const result5 = toAssigned(123, { a: 1 });
 ### `toAssigned(...sources: any[]): any`
 
 - **sources**: Any number of source objects. Non-object arguments are ignored.
-- **Returns**: A new object, array, function, or special object (Map/Set/...) with all enumerable properties from the sources, and prototype/type inherited from the first source.
+- **Returns**: A new object, array, function, or special object (Map/Set/...) with all enumerable properties from the sources, and prototype/type inherited from the first non-primitive source (see above for rules).
 
 ## License
 
