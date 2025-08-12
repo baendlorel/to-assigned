@@ -58,7 +58,7 @@ describe('toAssigned', () => {
     const arr = [1, 2, 3];
     const newArr = toAssigned(arr);
     expect(newArr.length).toEqual(arr.length);
-    expect(newArr).toEqual({ 0: 1, 1: 2, 2: 3 });
+    expect(newArr).toEqual([1, 2, 3]);
   });
 
   it('handles objects with prototype chain', () => {

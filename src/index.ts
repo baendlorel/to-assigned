@@ -30,6 +30,16 @@ function createResult(o: any) {
     defineProperty(fn, 'name', { value: o.name, configurable: true });
     defineProperty(fn, 'length', { value: o.length, configurable: true });
     result = fn;
+  } else if (o instanceof Map) {
+    result = new Map(o.entries());
+  } else if (o instanceof Set) {
+    result = new Set(o.values());
+  } else if (o instanceof WeakMap) {
+    result = new WeakMap();
+  } else if (o instanceof WeakSet) {
+    result = new WeakSet();
+  } else if (o instanceof Date) {
+    result = new Date(o.getTime());
   } else {
     result = {};
   }
@@ -46,7 +56,8 @@ function createResult(o: any) {
  *   - *non-object*: `result.prototype` will be `null`
  *   - *array*: result will be an array and shares the same prototype
  *   - *function*: result will be a function with the same `name`, `length` and shares the same prototype. But `caller`, `callee`, and `arguments` will not be copied
- *   - *Map/Set/WeakXXX/NativeObjects*: ignores the source and returns an empty object
+ *   - *Map/Set/WeakMap/WeakSet/Date*: create a new one with the old
+ *   - *other objects*: starts from an empty object
  * - only enumerable properties are copied
  * - will not modify the sources
  * - ignores all non-object arguments
