@@ -55,6 +55,7 @@ function createResult(sources: any[]) {
 }
 
 /**
+ * ## Usage
  * Creates a new object, array, function, or special object with properties from the provided sources.
  * Prototype and type are determined by the first non-primitive source (see below):
  *
@@ -70,6 +71,8 @@ function createResult(sources: any[]) {
  * - Only enumerable properties (including symbol keys) are copied from all sources.
  *
  * @returns A new object, array, function, or special object with merged properties and inherited prototype/type.
+ *
+ * __PKG_INFO__
  */
 export function toAssigned(...sources: any[]): any {
   if (sources.length === 0) {
