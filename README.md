@@ -2,6 +2,8 @@
 
 Create a new object, array, function, or special object by copying enumerable properties from one or more source objects. The prototype and type of the result are determined by the first non-primitive source (see below). More flexible than `Object.assign`, supporting arrays, functions, and special objects as the first source.
 
+> Recommended: set "type": "module" in your package.json to use this module with ES6 imports.
+
 ## Features
 
 - Does not modify the sources.
